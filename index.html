@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DailyDash - Everything in Your Hand</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;font-family:'Poppins',sans-serif}
+    body{background-color:#e0f2fe;color:#1e293b;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:16px}
+    .app-container{width:100%;max-width:420px;display:flex;flex-direction:column;gap:16px}
+    .hero-card{background:linear-gradient(135deg,#38bdf8,#0284c7);color:white;padding:24px 20px;border-radius:24px;text-align:center;box-shadow:0 10px 25px -5px rgba(56,189,248,.4)}
+    .mascot-wrapper{display:flex;justify-content:center;margin-bottom:12px}
+    .mascot{width:70px;height:60px;background:#fff;border-radius:50% 50% 45% 45%;position:relative;box-shadow:0 4px 10px rgba(0,0,0,.1);animation:float 3s ease-in-out infinite}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+    .mascot .eye{width:8px;height:8px;background:#0f172a;border-radius:50%;position:absolute;top:22px}
+    .mascot .eye.left{left:18px}.mascot .eye.right{right:18px}
+    .mascot .blush{width:10px;height:6px;background:#f472b6;border-radius:50%;position:absolute;top:30px;opacity:.7}
+    .mascot .blush.left{left:12px}.mascot .blush.right{right:12px}
+    .mascot .mouth{width:10px;height:6px;border-bottom:3px solid #0f172a;border-radius:0 0 10px 10px;position:absolute;bottom:18px;left:30px}
+    .hero-card h1{font-size:1.25rem;font-weight:700}.hero-card .subtitle{font-size:.85rem;opacity:.9;margin-top:4px}
+    .card{background:#fff;padding:20px;border-radius:20px;box-shadow:0 4px 15px rgba(0,0,0,.03)}
+    .card h2{font-size:1rem;color:#0369a1;margin-bottom:12px}
+    .card-header{display:flex;justify-content:space-between;align-items:center}
+    .badge{background:#e0f2fe;color:#0284c7;padding:4px 10px;border-radius:12px;font-size:.75rem;font-weight:600}
+    .water-progress-bar{width:100%;height:12px;background:#f1f5f9;border-radius:10px;overflow:hidden;margin:12px 0}
+    .water-progress-fill{height:100%;width:0;background:linear-gradient(90deg,#38bdf8,#0284c7);border-radius:10px;transition:width .3s ease}
+    .water-actions{display:flex;gap:8px}
+    .input-group{display:flex;gap:8px;margin-bottom:12px}
+    input[type=text]{flex:1;padding:10px 14px;border:2px solid #e2e8f0;border-radius:12px;outline:none;font-size:.85rem;transition:border-color .2s}
+    input[type=text]:focus{border-color:#38bdf8}
+    .btn{padding:10px 16px;border:none;border-radius:12px;font-weight:600;font-size:.85rem;cursor:pointer;transition:transform .1s,opacity .2s}
+    .btn:active{transform:scale(.96)}.btn-primary{background:#0284c7;color:#fff}.btn-water{background:#38bdf8;color:#fff;flex:2}.btn-secondary{background:#f1f5f9;color:#64748b;flex:1}
+    .todo-list{list-style:none;display:flex;flex-direction:column;gap:8px;max-height:200px;overflow-y:auto}
+    .todo-item{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#f8fafc;border-radius:10px;font-size:.85rem}
+    .todo-item.completed span{text-decoration:line-through;color:#94a3b8}
+    .todo-item button{background:none;border:none;color:#ef4444;cursor:pointer;font-size:.9rem}
+    textarea{width:100%;height:80px;padding:10px 14px;border:2px solid #e2e8f0;border-radius:12px;outline:none;resize:none;font-size:.85rem;transition:border-color .2s}
+    textarea:focus{border-color:#38bdf8}
+    footer{text-align:center;font-size:.75rem;color:#64748b;margin-top:8px}
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <header class="hero-card">
+      <div class="mascot-wrapper">
+        <div class="mascot">
+          <div class="eye left"></div><div class="eye right"></div>
+          <div class="blush left"></div><div class="blush right"></div>
+          <div class="mouth"></div>
+        </div>
+      </div>
+      <h1 id="greeting">Halo, Semangat Ya! ✨</h1>
+      <p class="subtitle">Segala aktivitas harianmu dalam satu genggaman.</p>
+    </header>
+
+    <section class="card water-card">
+      <div class="card-header">
+        <h2>💧 Water Tracker</h2>
+        <span class="badge" id="water-count">0 / 8 Gelas</span>
+      </div>
+      <div class="water-progress-bar"><div class="water-progress-fill" id="water-fill"></div></div>
+      <div class="water-actions">
+        <button class="btn btn-water" onclick="addWater()">+ Tambah Gelas</button>
+        <button class="btn btn-secondary" onclick="resetWater()">Reset</button>
+      </div>
+    </section>
+
+    <section class="card todo-card">
+      <h2>📌 Daftar Tugas Harian</h2>
+      <div class="input-group">
+        <input type="text" id="todo-input" placeholder="Tambah tugas baru..." onkeypress="handleTodoKey(event)">
+        <button class="btn btn-primary" onclick="addTodo()">Tambah</button>
+      </div>
+      <ul id="todo-list" class="todo-list"></ul>
+    </section>
+
+    <section class="card notes-card">
+      <h2>📝 Catatan Cepat</h2>
+      <textarea id="quick-notes" placeholder="Tulis ide atau catatan pentingmu di sini..." oninput="saveNotes()"></textarea>
+    </section>
+
+    <footer><p>Dibuat dengan ❤️ untuk harimu yang lebih produktif.</p></footer>
+  </div>
+
+  <script>
+    let waterGlasses=parseInt(localStorage.getItem('waterCount'))||0;
+    let todos=JSON.parse(localStorage.getItem('todos'))||[];
+    let notes=localStorage.getItem('quickNotes')||'';
+    const maxWater=8;
+
+    document.addEventListener('DOMContentLoaded',()=>{
+      updateWaterUI();
+      renderTodos();
+      document.getElementById('quick-notes').value=notes;
+      setDynamicGreeting();
+    });
+
+    function setDynamicGreeting(){
+      const hour=new Date().getHours();
+      const greetingEl=document.getElementById('greeting');
+      if(hour<11)greetingEl.innerText='Selamat Pagi! ☀️';
+      else if(hour<15)greetingEl.innerText='Selamat Siang! 🌤️';
+      else if(hour<18)greetingEl.innerText='Selamat Sore! 🌆';
+      else greetingEl.innerText='Selamat Malam! 🌙';
+    }
+
+    function addWater(){
+      if(waterGlasses<maxWater){waterGlasses++;saveWater();}
+    }
+    function resetWater(){waterGlasses=0;saveWater();}
+    function saveWater(){
+      localStorage.setItem('waterCount',waterGlasses);
+      updateWaterUI();
+    }
+    function updateWaterUI(){
+      document.getElementById('water-count').innerText=`${waterGlasses} / ${maxWater} Gelas`;
+      document.getElementById('water-fill').style.width=`${(waterGlasses/maxWater)*100}%`;
+    }
+
+    function addTodo(){
+      const input=document.getElementById('todo-input');
+      const text=input.value.trim();
+      if(text!==''){
+        todos.push({text:text,completed:false});
+        input.value='';
+        saveTodos();
+        renderTodos();
+      }
+    }
+    function handleTodoKey(event){if(event.key==='Enter')addTodo();}
+    function toggleTodo(index){
+      todos[index].completed=!todos[index].completed;
+      saveTodos();
+      renderTodos();
+    }
+    function deleteTodo(index){
+      todos.splice(index,1);
+      saveTodos();
+      renderTodos();
+    }
+    function saveTodos(){localStorage.setItem('todos',JSON.stringify(todos));}
+    function renderTodos(){
+      const list=document.getElementById('todo-list');
+      list.innerHTML='';
+      todos.forEach((todo,index)=>{
+        const li=document.createElement('li');
+        li.className=`todo-item ${todo.completed?'completed':''}`;
+        li.innerHTML=`
+          <span onclick="toggleTodo(${index})" style="cursor:pointer">
+            ${todo.completed?'✅':'⚪'} ${escapeHTML(todo.text)}
+          </span>
+          <button onclick="deleteTodo(${index})">✕</button>`;
+        list.appendChild(li);
+      });
+    }
+    function escapeHTML(text){
+      const div=document.createElement('div');
+      div.textContent=text;
+      return div.innerHTML;
+    }
+    function saveNotes(){
+      localStorage.setItem('quickNotes',document.getElementById('quick-notes').value);
+    }
+  </script>
+</body>
+</html>
